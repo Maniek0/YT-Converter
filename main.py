@@ -37,10 +37,8 @@ class YtDowdloander(Thread):
             data.download(self.file)
 
 class Window(QWidget):
-    CovertOptions = [
-        'mp4','mp3'
-    ]
     yt = YtDowdloander()
+    
     def __init__(self):
         super().__init__()
         self.setWindowTitle('YT Converter')
