@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication,QWidget,QTextEdit,QPushButton,QComboBox,QFileDialog
+from PySide6.QtWidgets import (QApplication,QWidget,QTextEdit,QPushButton,QComboBox,QFileDialog)
 
 from threading import Thread
 
@@ -54,13 +54,13 @@ class Window(QWidget):
         self.resolutionOptions.resize(100,30)
         self.resolutionOptions.move(300,370)
         self.resolutionOptions.addItems( ['Wysoka', 'Niska'] )
-        self.resolutionOptions.setToolTip('Jakość filmu.')
+        self.resolutionOptions.setToolTip('Jakość wideo.')
 
         self.convertOptionsBox = QComboBox(self)
         self.convertOptionsBox.resize(100,30)
         self.convertOptionsBox.move(400,370)
-        self.convertOptionsBox.addItems( ['mp3','mp4'] )
-        self.convertOptionsBox.setToolTip('Rozszerzenie pliku.')
+        self.convertOptionsBox.addItems( ['Dźwięk','Wideo'] )
+        self.convertOptionsBox.setToolTip('Co pobrać?')
 
         self.convertButton = QPushButton(self,text='Konwertuj')
         self.convertButton.resize(100,30)
@@ -71,9 +71,9 @@ class Window(QWidget):
         option = self.convertOptionsBox.currentText()
 
         match option:
-            case 'mp3':
+            case 'Dźwięk':
                 self.resolutionOptions.setDisabled(True)
-            case 'mp4':
+            case 'Wideo':
                 self.resolutionOptions.setEnabled(True)
 
         if self.yt.is_alive():
