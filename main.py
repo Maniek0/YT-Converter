@@ -1,13 +1,46 @@
-from PySide6.QtWidgets import QApplication,QWidget,QTextEdit,QPushButton,QComboBox,QFileDialog,QMessageBox
+from PySide6.QtWidgets import QApplication,QWidget,QTextEdit,QPushButton,QComboBox,QFileDialog
 
 from threading import Thread
 
 from pytube import YouTube
 
+class YtDowdloander(Thread):
+    def __init__(self) -> None:
+        super().__init__(daemon=True)
+
+    def start(self,links, file, method, resolution) -> None:
+        self.links = links
+        self.file = file
+        self.method = method
+        self.resolution = resolution
+
+        return super().start()
+
+
+    def run(self) -> None:
+        for link in self.links:
+
+            yt = YouTube(link)
+
+            match self.method:
+                case 'mp4':
+                    match self.resolution:
+                        case 'Wysoka':
+                            data = yt.streams.get_highest_resolution()
+
+                        case 'Niska':
+                            data = yt.streams.get_lowest_resolution()
+
+                case 'mp3':
+                    data = yt.streams.get_audio_only()
+                    
+            data.download(self.file)
+
 class Window(QWidget):
     CovertOptions = [
         'mp4','mp3'
     ]
+    yt = YtDowdloander()
     def __init__(self):
         super().__init__()
         self.setWindowTitle('YT Converter')
@@ -43,6 +76,15 @@ class Window(QWidget):
             case 'mp4':
                 self.resolutionOptions.setEnabled(True)
 
+        if self.yt.is_alive():
+            self.convertButton.setDisabled(True)
+            self.convertOptionsBox.setDisabled(True)
+
+        else:
+            self.yt = YtDowdloander()
+            self.convertButton.setEnabled(True)
+            self.convertOptionsBox.setEnabled(True)
+
     def getLinks(self):
         text = self.textEdit.toPlainText()
         links = text.splitlines()
@@ -56,43 +98,8 @@ class Window(QWidget):
         method = self.convertOptionsBox.currentText()
         resolution = self.resolutionOptions.currentText()
 
-        yt = YtDowdloander(links,file, method, resolution)
-        yt.start()
+        self.yt.start(links,file, method, resolution)
 
-class YtDowdloander(Thread):
-    def __init__(self, links, file, method, resolution) -> None:
-        super().__init__(daemon=True)
-
-        self.links = links
-        self.file = file
-        self.method = method
-        self.resolution = resolution
-
-    def run(self) -> None:
-        for link in self.links:
-
-            yt = YouTube(link)
-
-            match self.method:
-                case 'mp4':
-                    match self.resolution:
-                        case 'Wysoka':
-                            data = yt.streams.get_highest_resolution()
-
-                        case 'Niska':
-                            data = yt.streams.get_lowest_resolution()
-
-                case 'mp3':
-                    data = yt.streams.get_audio_only()
-                    
-            data.download(self.file)
-
-    def __del__(self):
-        info = QMessageBox()
-        info.setWindowTitle('YT Converter')
-        info.setText('Pobieranie zakończone')
-        info.setIcon(QMessageBox.Information)
-        info.exec()
 
 if __name__ == '__main__':
     app = QApplication()
